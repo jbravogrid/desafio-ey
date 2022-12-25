@@ -41,6 +41,11 @@ public class UserRepository {
 		TypedQuery<UserEntity> query = this.entityManager.createQuery("SELECT s FROM UserEntity s WHERE Upper(email) = ?1",UserEntity.class);
 		return query.setParameter(1, email.toUpperCase(Locale.US)).getSingleResult();
 	}
+	public UserEntity getUserByEmailAndNotName(String email, String name) {
+		TypedQuery<UserEntity> query = this.entityManager.createQuery("SELECT s FROM UserEntity s WHERE Upper(email) = ?1 and Upper(name) <> ?2",UserEntity.class);
+		query.setParameter(1, email.toUpperCase(Locale.US));
+		return query.setParameter(2, name.toUpperCase(Locale.US)).getSingleResult();
+	}
 	public UserEntity getUserByNameAndPassword(String name, String password) {
 		TypedQuery<UserEntity> query = this.entityManager.createQuery("SELECT s FROM UserEntity s WHERE name = ?1 and password =?2",UserEntity.class);
 		query.setParameter(1, name);

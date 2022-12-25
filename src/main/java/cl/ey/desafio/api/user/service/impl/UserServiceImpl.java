@@ -62,6 +62,7 @@ public class UserServiceImpl implements UserService {
 	public UserResponse updateUser(UserRequest user) throws CustomException {
 		if(Boolean.FALSE.equals(userExist(user.getName())))
 			throw new CustomException(ErrorEnum.USUARIO_NO_SE_PUEDE_ACTUALIZAR, errores.get(2));
+		validationUpdate(user);
 		UserEntity entityToUpdate = repository.getUserByName(user.getName());
 		entityToUpdate = UserMapper.mapperUserEntityUpdate(user,entityToUpdate);	
 		repository.updateUser(entityToUpdate);	
@@ -106,6 +107,18 @@ public class UserServiceImpl implements UserService {
 		return false;
 	}	
 	
+	@Override
+	public boolean emailExistOtherUser(String email,String name)  {
+		try{
+			UserEntity user = repository.getUserByEmailAndNotName(email, name);
+			if(user != null)
+				return true;
+		}catch(Exception e) {
+			return false;
+		}
+		return false;
+	}	
+	
 	
 	@Override
 	public boolean validateUserAccess(String name, String password) throws CustomException {
@@ -133,6 +146,16 @@ public class UserServiceImpl implements UserService {
 		if (Boolean.TRUE.equals(emailExist(user.getEmail())))
 			throw new CustomException(ErrorEnum.CORREO_YA_REGISTRADO, codeValidation.get(3));
 
+	}
+	public void validationUpdate(UserRequest user) throws CustomException {
+		if (Boolean.TRUE.equals(user.getName()==null))
+			throw new CustomException(ErrorEnum.USUARIO_NAME_VACIO, codeValidation.get(-1));
+		if (Boolean.FALSE.equals(patternMatches(user.getEmail(), emailRegex)))
+			throw new CustomException(ErrorEnum.CORREO_NO_CUMPLE_FORMATO, codeValidation.get(4));
+		
+		if (Boolean.TRUE.equals(emailExistOtherUser(user.getEmail(),user.getName())))
+			throw new CustomException(ErrorEnum.CORREO_YA_REGISTRADO, codeValidation.get(3));
+		
 	}
 	
 	public static boolean patternMatches(String field, String regexPattern) {

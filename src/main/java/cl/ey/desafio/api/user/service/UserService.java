@@ -15,6 +15,7 @@ public interface UserService {
 	public UserResponse getUserById(String id) throws NoResultException;
 	public boolean userExist(String name) ;
 	public boolean  emailExist(String email);	
+	public boolean emailExistOtherUser(String email,String name);
 	public UserResponse getUserByName(String name)throws NoResultException;
 	public boolean validateUserAccess(String name, String password) throws CustomException;
 	public boolean validateUserToken(String name, String token) throws CustomException;
