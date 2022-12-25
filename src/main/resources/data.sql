@@ -1,0 +1,3 @@
+INSERT INTO users (id, name, password, email, creationDate, lastlogin, active) VALUES ('c9cd118a-eff3-46c9-9e69-2c6dc95aa8e6', 'USER1','sRecPkklBcwsltjMgNx/Rg==','user1@ey.cl', '2022-12-21 15:30:00.0','2022-12-21 15:30:00.0', True);
+INSERT INTO users (id, name, password, email, creationDate, lastlogin) VALUES ('060f1a87-9dd7-48f5-bd6c-3d91b98bf6a4', 'USER2','sRecPkklBcwsltjMgNx/Rg==','user2@ey.cl','2022-12-21 15:30:00.0','2022-12-21 15:30:00.0');
+INSERT INTO users (id, name, password, email, creationDate, lastlogin) VALUES ('060f1a87-9dd7-48f5-bd6c-3d91b98bf6a5', 'user3','sRecPkklBcwsltjMgNx/Rg==','user3@ey.cl', '2022-12-21 15:30:00.0','2022-12-21 15:30:00.0');

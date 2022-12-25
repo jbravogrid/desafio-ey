@@ -1,0 +1,43 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '2.7.0'
+	id 'io.spring.dependency-management' version '1.1.0'
+	id 'application'
+}
+
+group = 'cl.ey.desafio.api.user'
+version = '0.0.1'
+sourceCompatibility = '11'
+
+mainClassName = 'cl.ey.desafio.api.user.ApiUserApplication'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	//implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springdoc:springdoc-openapi-ui:1.6.12'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'javax.persistence:javax.persistence-api:2.2'
+	implementation 'javax.xml.bind:jaxb-api:2.3.1'
+	implementation 'org.passay:passay:1.0'
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.11.5' 
+    implementation 'io.jsonwebtoken:jjwt-orgjson:0.11.5'
+	implementation 'com.thoughtworks.xstream:xstream:1.4.17'
+	implementation 'com.h2database:h2'	
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	
+}
+
+test {
+	useJUnitPlatform()
+}
+
+
+
+
