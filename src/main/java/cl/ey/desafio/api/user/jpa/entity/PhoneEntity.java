@@ -16,13 +16,13 @@ public class PhoneEntity {
 	@GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 	
-	@Pattern(regexp ="^([0-9]{7}$)|([0-9]{8}$)|([0-9]{9}$)", message = "Numero debe ser un numero de entre 7 y 9")			
+	@Pattern(regexp ="^([0-9]{7}$)|([0-9]{8}$)|([0-9]{9}$)", message = "Number debe ser un número de entre 7 y 9 dígitos")			
 	private String number;
 	
-	@Pattern(regexp ="^([0-9]{1}$)|([0-9]{2}$)", message = "citycode es un numero de 1 y 2 digitos")
+	@Pattern(regexp ="^([0-9]{1}$)|([0-9]{2}$)", message = "citycode es un numero de 1 y 2 dígitos")
 	private String citycode;
 	
-	@Pattern(regexp ="^([0-9]{2}$)|([0-9]{3}$)$", message = "contrycode es un numero de 2 y 3 digitos")
+	@Pattern(regexp ="^([0-9]{2}$)|([0-9]{3}$)$", message = "countrycode es un numero de 2 y 3 dígitos")
 	private String contrycode;
 	
 	@ManyToOne

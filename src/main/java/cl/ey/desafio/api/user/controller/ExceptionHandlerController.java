@@ -29,6 +29,20 @@ public class ExceptionHandlerController {
           return getResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
       case AUTHORIZATION_INVALIDO:
     	  return getResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+      case EMAIL_EXISTENTE:
+    	  return getResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+      case EMAIL_EXISTE_OTRO_USER:
+    	  return getResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+      case TOKEN_NO_PERTENECE:
+    	  return getResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+      case TOKEN_EXPIRADO:
+    	  return getResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+      case TOKEN_NO_VALIDO:
+    	  return getResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+      case	SINTAXIS_TOKEN_INCORRECTA:  
+      	 return getResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+      case USUARIO_EXISTENTE:
+    	  return getResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
       default:
     	  return getResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
       }

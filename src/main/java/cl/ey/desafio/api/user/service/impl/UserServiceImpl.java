@@ -62,7 +62,7 @@ public class UserServiceImpl implements UserService {
 		user.getPhones().stream().forEach(p->{
 			PhoneEntity pe = new PhoneEntity();
 			pe.setCitycode(p.getCitycode());
-			pe.setContrycode(p.getContrycode());
+			pe.setContrycode(p.getCountrycode());
 			pe.setNumber(p.getNumber());
 			pe.setIdUser(userEntity);			
 			userEntity.getPhones().add(pe);

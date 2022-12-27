@@ -25,11 +25,7 @@ public class UserController {
 	@Autowired
 	private UserService service;
 	
-	@GetMapping(value = "/ey/user/{id}", produces = "application/json")
-	public ResponseEntity<UserResponse>  getUser(@PathVariable("id") String id) throws CustomException {		
-		return new ResponseEntity<UserResponse>(service.getUserById(id),HttpStatus.OK);
-		
-	}
+
 	@PostMapping(value = "/ey/user", consumes = "application/json", produces = "application/json")
 	public ResponseEntity<UserResponse>  addUser(@RequestHeader("Authorization") String token, @Valid @RequestBody User user) throws CustomException {		
 		return new ResponseEntity<UserResponse>(service.addUser(user),HttpStatus.OK);

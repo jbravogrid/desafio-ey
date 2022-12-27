@@ -28,7 +28,7 @@ public interface Parser {
 		input.getPhones().stream().forEach(p->{
 			PhoneEntity pe = new PhoneEntity();
 			pe.setCitycode(p.getCitycode());
-			pe.setContrycode(p.getContrycode());
+			pe.setContrycode(p.getCountrycode());
 			pe.setNumber(p.getNumber());
 			pe.setIdUser(output);
 		//	pe.setId(UUID.randomUUID().toString());
@@ -51,7 +51,7 @@ public interface Parser {
 		input.getPhones().stream().forEach(p->{
 			PhoneEntity pe = new PhoneEntity();
 			pe.setCitycode(p.getCitycode());
-			pe.setContrycode(p.getContrycode());
+			pe.setContrycode(p.getCountrycode());
 			pe.setNumber(p.getNumber());
 			pe.setIdUser(output);			
 			output.getPhones().add(pe);
@@ -72,11 +72,12 @@ public interface Parser {
 		output.setActive(input.isActive());
 		output.setCreated(input.getCreated().toString());
 		output.setLastLogin(input.getLast_login().toString());
+		output.setModified(input.getModified() == null ? null : input.getModified().toString());
 		output.setToken(input.getToken());
 		input.getPhones().stream().forEach(p->{
 			Phone ph = new Phone();
 			ph.setCitycode(p.getCitycode());
-			ph.setContrycode(p.getContrycode());
+			ph.setCountrycode(p.getContrycode());
 			ph.setNumber(p.getNumber());
 			output.getPhones().add(ph);
 		});

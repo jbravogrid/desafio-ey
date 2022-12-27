@@ -17,7 +17,7 @@ public class Phone {
 	
 	@Size(min = 2, max = 3)
 	@Pattern(regexp = "^[0-9]{2-3}$")
-	private String contrycode;
+	private String countrycode;
 	
 	public String getNumber() {
 		return number;
@@ -31,10 +31,10 @@ public class Phone {
 	public void setCitycode(String citycode) {
 		this.citycode = citycode;
 	}
-	public String getContrycode() {
-		return contrycode;
+	public String getCountrycode() {
+		return countrycode;
 	}
-	public void setContrycode(String contrycode) {
-		this.contrycode = contrycode;
+	public void setCountrycode(String contrycode) {
+		this.countrycode = contrycode;
 	}
 }
