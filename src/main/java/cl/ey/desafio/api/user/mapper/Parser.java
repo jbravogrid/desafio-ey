@@ -1,64 +1,86 @@
 package cl.ey.desafio.api.user.mapper;
 
-import java.text.DateFormat;
-import java.time.Instant;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.UUID;
 
+import cl.ey.desafio.api.user.jpa.entity.PhoneEntity;
 import cl.ey.desafio.api.user.jpa.entity.UserEntity;
 import cl.ey.desafio.api.user.model.Phone;
-import cl.ey.desafio.api.user.model.UserRequest;
+import cl.ey.desafio.api.user.model.User;
 import cl.ey.desafio.api.user.model.UserResponse;
 
 public interface Parser {
 
-	public static UserResponse fromUserEntity(UserEntity entity) {
-		UserResponse response = new UserResponse();
-		response.setId(entity.getId());
-		response.setName(entity.getName());
-		response.setEmail(entity.getEmail());
-		response.setPassword(entity.getPassword());
-		response.setCreationDate(entity.getCreationDate() == null ? null : parseFecha(entity.getCreationDate()));
-		response.setId(entity.getId());
-		response.setLastLogin(entity.getLastLogin() == null ? null : parseFecha(entity.getLastLogin()));
-		response.setModificationDate(entity.getModificationDate()== null ? null :parseFecha(entity.getModificationDate()));
-		response.setToken(entity.getToken());
-		response.setActive(entity.getActive()!= null ? entity.getActive() : false);
-		entity.getPhones().stream().forEach(p->{
-			Phone phone = new Phone(p.getNumber(), p.getCitycode(), p.getContrycode());
-			response.getPhones().add(phone);
-		});		
-		return response;
+	
+	public static UserEntity fromAddUserRequest(User input) {
+		if(input == null) {
+			return null;
+		}
+		
+		UserEntity output = new UserEntity();
+		output.setId(UUID.randomUUID().toString());
+		output.setName(input.getName());
+		output.setPassword(input.getPassword());
+		output.setEmail(input.getEmail());
+		output.setActive(input.isActive());
+		output.setCreated(Calendar.getInstance().getTime());
+		output.setLast_login(output.getCreated());
+		input.getPhones().stream().forEach(p->{
+			PhoneEntity pe = new PhoneEntity();
+			pe.setCitycode(p.getCitycode());
+			pe.setContrycode(p.getContrycode());
+			pe.setNumber(p.getNumber());
+			pe.setIdUser(output);
+		//	pe.setId(UUID.randomUUID().toString());
+			output.getPhones().add(pe);
+		});
+		return output;
 		
 	}
-	public static UserEntity fromCreateUserRequest(UserRequest request) {
-		UserEntity response = new UserEntity();		
-		response.setName(request.getName());
-		response.setEmail(request.getEmail());
-		response.setPassword(request.getPassword());
-		response.setCreationDate(Date.from(Instant.now()));
-		response.setId(UUID.randomUUID().toString());
-		response.setLastLogin(Date.from(Instant.now()));
-		response.setToken(UUID.randomUUID().toString());
-		response.setActive(request.isActive());		
-		return response;
+	public static UserEntity fromUpdateUserRequest(User input) {
+		if(input == null) {
+			return null;
+		}
 		
-	}
-	public static UserEntity fromUpdateUserRequest(UserRequest request) {
-		UserEntity response = new UserEntity();			
-		response.setEmail(request.getEmail());
-		response.setPassword(request.getPassword());
-		response.setModificationDate(Date.from(Instant.now()));				
-		response.setActive(request.isActive());
-		
-		return response;
+		UserEntity output = new UserEntity();
+		output.setName(input.getName());
+		output.setPassword(input.getPassword());
+		output.setEmail(input.getEmail());
+		output.setActive(input.isActive());		
+		output.setModified(Calendar.getInstance().getTime());		
+		input.getPhones().stream().forEach(p->{
+			PhoneEntity pe = new PhoneEntity();
+			pe.setCitycode(p.getCitycode());
+			pe.setContrycode(p.getContrycode());
+			pe.setNumber(p.getNumber());
+			pe.setIdUser(output);			
+			output.getPhones().add(pe);
+		});
+		return output;
 		
 	}
 	
-	public static String parseFecha(Date fecha) {
-		return DateFormat
-		  .getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
-		  .format(fecha);
-	}
-
+	public static UserResponse fromAddUserEntity(UserEntity input) {
+		if(input == null) {
+			return null;
+		}
+		
+		UserResponse output = new UserResponse();
+		output.setId(input.getId());
+		output.setName(input.getName());
+		output.setEmail(input.getEmail());
+		output.setActive(input.isActive());
+		output.setCreated(input.getCreated().toString());
+		output.setLastLogin(input.getLast_login().toString());
+		output.setToken(input.getToken());
+		input.getPhones().stream().forEach(p->{
+			Phone ph = new Phone();
+			ph.setCitycode(p.getCitycode());
+			ph.setContrycode(p.getContrycode());
+			ph.setNumber(p.getNumber());
+			output.getPhones().add(ph);
+		});
+		return output;
+		
+	}	
 }

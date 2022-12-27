@@ -1,78 +1,64 @@
 package cl.ey.desafio.api.user.jpa.entity;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.Pattern;
 
 @Entity
 @Table(name = "phones")
 public class PhoneEntity {
+
+	@Id	 
+	@GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private Long id;
 	
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private int id;
-	
-	@ManyToOne
-	@JoinColumn(name="idUser", nullable=false)
-	private UserEntity user;
-	
-	
-	@Column(name="number", length=10, nullable=true, unique=false)
+	@Pattern(regexp ="^([0-9]{7}$)|([0-9]{8}$)|([0-9]{9}$)", message = "Numero debe ser un numero de entre 7 y 9")			
 	private String number;
 	
-	@Column(name="citycode", length=6, nullable=true, unique=false)
+	@Pattern(regexp ="^([0-9]{1}$)|([0-9]{2}$)", message = "citycode es un numero de 1 y 2 digitos")
 	private String citycode;
 	
-	@Column(name="contrycode", length=6, nullable=true, unique=false)
+	@Pattern(regexp ="^([0-9]{2}$)|([0-9]{3}$)$", message = "contrycode es un numero de 2 y 3 digitos")
 	private String contrycode;
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
-	public UserEntity getUser() {
-		return user;
-	}
-
-	public void setUser(UserEntity user) {
-		this.user = user;
-	}
 	
-
+	@ManyToOne
+	private UserEntity idUser;
+	
 	public String getNumber() {
 		return number;
 	}
-
 	public void setNumber(String number) {
 		this.number = number;
 	}
-
 	public String getCitycode() {
 		return citycode;
 	}
-
 	public void setCitycode(String citycode) {
 		this.citycode = citycode;
 	}
-
 	public String getContrycode() {
 		return contrycode;
 	}
-
 	public void setContrycode(String contrycode) {
 		this.contrycode = contrycode;
 	}
-
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
+	public UserEntity getIdUser() {
+		return idUser;
+	}
+	public void setIdUser(UserEntity idUser) {
+		this.idUser = idUser;
+	}
 	
 	
-
+	
 }

@@ -1,193 +1,151 @@
 package cl.ey.desafio.api.user.service.impl;
 
-import java.util.Map;
-import java.util.regex.Pattern;
-
-import javax.persistence.NoResultException;
-
+import java.util.Calendar;
+import java.util.EnumMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import cl.ey.desafio.api.user.exception.CustomException;
 import cl.ey.desafio.api.user.exception.ErrorEnum;
+import cl.ey.desafio.api.user.jpa.entity.PhoneEntity;
 import cl.ey.desafio.api.user.jpa.entity.UserEntity;
 import cl.ey.desafio.api.user.jpa.repository.UserRepository;
-import cl.ey.desafio.api.user.jwt.JwtUtil;
-import cl.ey.desafio.api.user.mapper.UserMapper;
-import cl.ey.desafio.api.user.model.UserRequest;
+import cl.ey.desafio.api.user.mapper.Convert;
+import cl.ey.desafio.api.user.mapper.Parser;
+import cl.ey.desafio.api.user.model.User;
 import cl.ey.desafio.api.user.model.UserResponse;
-import cl.ey.desafio.api.user.service.PhoneService;
 import cl.ey.desafio.api.user.service.UserService;
 
 @Service
 public class UserServiceImpl implements UserService {
 
-	@Value("#{${app.error}}")
-	private Map<Integer,String> errores;
+	@Value("#{${api.enum.msg}}")
+	private EnumMap<ErrorEnum, String> msg;
 	
-	@Value("#{${app.validation.code}}")
-	private Map<Integer,String> codeValidation;
+	@Value("#{${api.db.msg}}")
+	private EnumMap<ErrorEnum, String> dbmsg;	
 	
-	@Value("${app.email.regex}")
-	private String emailRegex;
-	
-	@Value("${api.jwt.expiration-seconds}")
-	private long expirationSeconds;
-
-	@Value("${api.crypto.key}")
-	private String secret;
-	@Autowired
-	private PhoneService phoneService;
 	
 	@Autowired
 	private UserRepository repository;
 	
+	private Convert<User,UserEntity> entity = Parser::fromAddUserRequest;
+	private Convert<User,UserEntity> update = Parser::fromUpdateUserRequest;
+	private Convert<UserEntity, UserResponse> responseUser = Parser::fromAddUserEntity;
 	
 	@Override
-	public UserResponse addUser(UserRequest user) throws CustomException {
-		{
-				
-			validation(user);			
-			UserEntity entity = UserMapper.mapperUserEntityCreation(user);
-			String token = JwtUtil.createJwt(user.getName(), secret, expirationSeconds);
-			entity.setToken(token);
-			repository.insertUser(entity);	
-			phoneService.addPhones(user.getPhones(),entity);
-			return getUserByName(user.getName());
-		}
+	public UserResponse addUser(User user) throws CustomException {
+		if (validateUserExist(user.getName()))
+			throw new CustomException(ErrorEnum.USUARIO_EXISTENTE, dbmsg.get(ErrorEnum.USUARIO_EXISTENTE));
+		if (validateIfMailExistsInOtherUser(user.getEmail(), user.getName()))
+			throw new CustomException(ErrorEnum.EMAIL_EXISTENTE, dbmsg.get(ErrorEnum.EMAIL_EXISTENTE));
+		
+		UserEntity userEntity = entity.from(user);
+
+		repository.insertUser(userEntity);		
+		return responseUser.from(userEntity);
+
+	}
+	
+	@Override
+	public UserResponse updateUser(User user) throws CustomException {
+		if(validateIfMailExistsInOtherUser(user.getEmail(),user.getName()))
+			throw new CustomException(ErrorEnum.EMAIL_EXISTE_OTRO_USER, dbmsg.get(ErrorEnum.EMAIL_EXISTE_OTRO_USER));
+		UserEntity userEntity = repository.getUserByName(user.getName());	
+		userEntity.setPhones(null);
+		userEntity.setName(user.getName());
+		userEntity.setPassword(user.getPassword());
+		userEntity.setEmail(user.getEmail());
+		userEntity.setActive(user.isActive());		
+		userEntity.setModified(Calendar.getInstance().getTime());		
+		user.getPhones().stream().forEach(p->{
+			PhoneEntity pe = new PhoneEntity();
+			pe.setCitycode(p.getCitycode());
+			pe.setContrycode(p.getContrycode());
+			pe.setNumber(p.getNumber());
+			pe.setIdUser(userEntity);			
+			userEntity.getPhones().add(pe);
+		});
+		return responseUser.from(repository.updateUser(userEntity));
+	}
+		
+    public boolean validateUserExist(String name) throws CustomException {
+    	try {
+    		if(repository.getUserByName(name)!=null)
+    			return true;
+    	}catch(Exception e) {
+    		return false;
+    	}
+    	return false;
+    	
+    }
+    
+    public boolean validateMailExists(String email) throws CustomException {
+    	try {
+    		if(repository.getUserByEmail(email)!=null)
+    			return true;
+    	}catch(Exception e) {
+    		return false;
+    	}
+    	return false;
+    	
+    }
+    public boolean validateIfMailExistsInOtherUser(String email, String name) throws CustomException {
+    	try {
+    		if(repository.getUserByEmailExist(email, name)!=null)
+    			return true;
+    	}catch(Exception e) {
+    		return false;
+    	}
+    	return false;
+    	
+    }
+
+	@Override
+	public UserResponse getUserById(String id) {		
+		return responseUser.from(repository.getUserById(id));
 	}
 
 	@Override
-	public UserResponse updateUser(UserRequest user) throws CustomException {
-		if(Boolean.FALSE.equals(userExist(user.getName())))
-			throw new CustomException(ErrorEnum.USUARIO_NO_SE_PUEDE_ACTUALIZAR, errores.get(2));
-		validationUpdate(user);
-		UserEntity entityToUpdate = repository.getUserByName(user.getName());
-		entityToUpdate = UserMapper.mapperUserEntityUpdate(user,entityToUpdate);	
-		repository.updateUser(entityToUpdate);	
-		phoneService.addPhones(user.getPhones(),entityToUpdate);
-		return getUserById(entityToUpdate.getId());		
+	public boolean validateUserCredential(String name, String password) throws CustomException {
+		UserEntity user = new UserEntity();		
+	try {
+		user = repository.getUserByCredentials(name, password);
+		
+	}catch(Exception e) {
+		throw new CustomException(ErrorEnum.CREDENCIALES_INVALIDAS,msg.get(ErrorEnum.CREDENCIALES_INVALIDAS));
 	}
-	@Override
-	public UserResponse getUserById(String id) throws NoResultException{	
-		UserEntity user = repository.getUserById(id);		
-		user.getPhones().addAll( phoneService.getPhoneByUserId(id));
-		return UserMapper.mapperUserEntity(repository.getUserById(id));
+	if(Boolean.TRUE.equals(user.isActive()))
+		return true;
+	
+	throw new CustomException(ErrorEnum.USUARIO_INACTIVO,msg.get(ErrorEnum.USUARIO_INACTIVO));
 	}
 
 	@Override
-	public UserResponse getUserByName(String name) throws NoResultException{
-		UserEntity user = repository.getUserByName(name);		
-		user.getPhones().addAll(phoneService.getPhoneByUserId(user.getId()));
-		return UserMapper.mapperUserEntity(user);
+	public void saveToken(String name, String token) {
+		UserEntity user = repository.getUserByName(name);
+		user.setToken(token);
+		repository.updateUser(user);
+		
 	}
 
 	@Override
-	public boolean userExist(String name)  {
-		try{
-			UserEntity user = repository.getUserByName(name);
-			if(user != null)
-			return true;
-		}catch(Exception e) {
-			return false;
-		}
-		return false;
-	}
-	
-	@Override
-	public boolean emailExist(String email)  {
-		try{
-			UserEntity user = repository.getUserByEmail(email);
-			if(user != null)
-				return true;
-		}catch(Exception e) {
-			return false;
-		}
-		return false;
-	}	
-	
-	@Override
-	public boolean emailExistOtherUser(String email,String name)  {
-		try{
-			UserEntity user = repository.getUserByEmailAndNotName(email, name);
-			if(user != null)
-				return true;
-		}catch(Exception e) {
-			return false;
-		}
-		return false;
-	}	
-	
-	
-	@Override
-	public boolean validateUserAccess(String name, String password) throws CustomException {
+	public boolean validaToken(String name, String token) throws CustomException {
 		UserEntity user = new UserEntity();
 		user.setActive(false);
-		try{
-			 user = repository.getUserByCredentials(name,password);			
-		}catch(Exception e) {
-			 throw new CustomException(ErrorEnum.CREDENCIALES_INVALIDAS, errores.get(6));
-		}
-		if(Boolean.FALSE.equals(user.getActive()))
-			throw new CustomException(ErrorEnum.USUARIO_INACTIVO, errores.get(5));	
-		return true;
-		
-		
-	}
-	
-	public void validation(UserRequest user) throws CustomException {
-		if (Boolean.TRUE.equals(user.getName()==null))
-			throw new CustomException(ErrorEnum.USUARIO_NAME_VACIO, codeValidation.get(-1));
-		if (Boolean.FALSE.equals(patternMatches(user.getEmail(), emailRegex)))
-			throw new CustomException(ErrorEnum.CORREO_NO_CUMPLE_FORMATO, codeValidation.get(4));
-		if (Boolean.TRUE.equals(userExist(user.getName())))
-			throw new CustomException(ErrorEnum.USUARIO_NO_SE_PUEDE_CREAR, errores.get(1));
-		if (Boolean.TRUE.equals(emailExist(user.getEmail())))
-			throw new CustomException(ErrorEnum.CORREO_YA_REGISTRADO, codeValidation.get(3));
-
-	}
-	public void validationUpdate(UserRequest user) throws CustomException {
-		if (Boolean.TRUE.equals(user.getName()==null))
-			throw new CustomException(ErrorEnum.USUARIO_NAME_VACIO, codeValidation.get(-1));
-		if (Boolean.FALSE.equals(patternMatches(user.getEmail(), emailRegex)))
-			throw new CustomException(ErrorEnum.CORREO_NO_CUMPLE_FORMATO, codeValidation.get(4));
-		
-		if (Boolean.TRUE.equals(emailExistOtherUser(user.getEmail(),user.getName())))
-			throw new CustomException(ErrorEnum.CORREO_YA_REGISTRADO, codeValidation.get(3));
-		
-	}
-	
-	public static boolean patternMatches(String field, String regexPattern) {
-	    return Pattern.compile(regexPattern)
-	      .matcher(field)
-	      .matches();
-	}
-
-	@Override
-	public boolean validateUserToken(String name, String token) throws CustomException {
-		boolean valid = false;
-		UserEntity user = new UserEntity();
 		try {
-			user = repository.getUserByName(name);
-		} catch (Exception e) {
-			throw new CustomException(ErrorEnum.USUARIO_NO_VALIDADO, errores.get(7));
+	
+			user = repository.getUserByToken(name, token);
 		}
-		if (Boolean.FALSE.equals(user.getActive()))
-			throw new CustomException(ErrorEnum.USUARIO_INACTIVO, errores.get(5));
-		if (user.getToken().equals(token))
-			valid = true;
-		return valid;
+		catch(Exception e) {
+			return false;
+		}
+		if(Boolean.FALSE.equals(user.isActive()))
+			throw new CustomException(ErrorEnum.USUARIO_INACTIVO, msg.get(ErrorEnum.USUARIO_INACTIVO));
+		return true;
 	}
 
-	@Override
-	public void updateToken(String name, String token) {
-		UserEntity entityToUpdate = repository.getUserByName(name);
-		entityToUpdate.setToken(token);
-		repository.updateUser(entityToUpdate);	
-		
-	}
-
-			
+	
 
 }

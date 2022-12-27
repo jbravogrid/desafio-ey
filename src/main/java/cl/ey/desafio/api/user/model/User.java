@@ -2,16 +2,23 @@ package cl.ey.desafio.api.user.model;
 
 import java.util.List;
 
-import cl.ey.desafio.api.user.config.ValidPassword;
+import javax.validation.constraints.Email;
 
-public class UserRequest {
+import cl.ey.desafio.api.user.jpa.security.ValidPassword;;
+
+
+public class User {
 	
 	private String name;
-	private String email;
 	
-	@ValidPassword
+	@Email
+	private String email;
+		
+    @ValidPassword
 	private String password;
 	private boolean active;
+	
+	
 	private List<Phone> phones;
 	
 	

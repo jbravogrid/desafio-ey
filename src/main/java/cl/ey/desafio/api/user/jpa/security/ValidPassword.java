@@ -1,15 +1,14 @@
-package cl.ey.desafio.api.user.config;
+package cl.ey.desafio.api.user.jpa.security;
 
 import java.lang.annotation.*;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
 
-import cl.ey.desafio.api.user.jpa.security.PasswordConstraintValidator;
 
 @Documented
 @Constraint(validatedBy = PasswordConstraintValidator.class)
-@Target(ElementType.FIELD)
+@Target({ ElementType.TYPE, ElementType.FIELD, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidPassword {
 

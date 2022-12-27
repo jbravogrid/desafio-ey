@@ -1,42 +1,33 @@
 package cl.ey.desafio.api.user.service.impl;
 
-import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import cl.ey.desafio.api.user.exception.CustomException;
 import cl.ey.desafio.api.user.jpa.entity.PhoneEntity;
-import cl.ey.desafio.api.user.jpa.entity.UserEntity;
 import cl.ey.desafio.api.user.jpa.repository.PhoneRepository;
-import cl.ey.desafio.api.user.model.Phone;
 import cl.ey.desafio.api.user.service.PhoneService;
 
 @Service
 public class PhoneServiceImpl implements PhoneService {
 	
 	@Autowired
-	private PhoneRepository phoneRepo;
-	
+	private PhoneRepository repo;
+
 	@Override
-	public void addPhones(List<Phone> phones, UserEntity user) throws CustomException {
-		
-		if(phones != null)
-		phones.stream().forEach(p->{
-			PhoneEntity entity = new PhoneEntity();
-			entity.setUser(user);
-			entity.setCitycode(p.getCitycode());
-			entity.setContrycode(p.getContrycode());
-			entity.setNumber(p.getNumber());
-			phoneRepo.insertPhone(entity);
-			});		
-			
-				
+	public Set<PhoneEntity> getPhoneByUserId(String id) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
-	public List<PhoneEntity> getPhoneByUserId(String id) {		
-		return phoneRepo.getPhoneByUserId(id);
+	public void addPhones(Set<PhoneEntity> phones) throws CustomException {
+		phones.stream().forEach(p->{
+			repo.insertPhone(p);
+		});
+
 	}
 
 }

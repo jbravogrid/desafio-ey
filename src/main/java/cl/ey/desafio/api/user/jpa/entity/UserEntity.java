@@ -2,65 +2,62 @@ package cl.ey.desafio.api.user.jpa.entity;
 
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Set;
-
 import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
 
-import cl.ey.desafio.api.user.jpa.security.ConverterCrypto;
+import cl.ey.desafio.api.user.jpa.security.CryptoConverter;
 
 @Entity
 @Table(name = "users")
 public class UserEntity {
 	
-	 	@Id	   
-	    @Column(columnDefinition = "VARCHAR(36)", unique = true)
+	 	@Id	   	   
 	    private String id;
 	    
 	    @Column(name="NAME", length=50, nullable=false, unique=true)
 	    private String name;
-
-	    @NotEmpty
-	    @Email
-	    @Size(max = 255)
-	    @Column(name="email", unique = true)
+	    
+	    @Column(name="email", length=256, nullable=false, unique=true)
 	    private String email;
 	    
-	    @Column(name="password", length=32, nullable=true, unique = false)	   
-	    @Convert(converter = ConverterCrypto.class)
+	    
+	    @Convert(converter = CryptoConverter.class)
+	    @Column(name="password", length=32, nullable=false, unique=false)
 	    private String password;
-
+	   
 	    @Temporal(TemporalType.TIMESTAMP)
-	    @Column(name="CREATIONDATE")
-	    private Date creationDate;
+	    @Column(name="created")
+	    private Date created;
 	    
-	    @Temporal(TemporalType.TIMESTAMP)
-	    private Date modificationDate;
 	    
 	    @Temporal(TemporalType.TIMESTAMP)
-	    @Column(name="LASTLOGIN")
-	    private Date lastLogin;
+	    @Column(name="modified")
+	    private Date modified;
 	    
-	    @Column(columnDefinition = "VARCHAR(512)", unique = true)
-	    private String token;
+	    @Temporal(TemporalType.TIMESTAMP)
+	    @Column(name="last_login")
+	    private Date last_login;
 	    
-	    @Column(columnDefinition = "boolean default false")
-	    private Boolean active;
-
-	    @OneToMany(mappedBy="user")
+	    @Column(name="token")
+	    private String token;	    
+	    
+	    @OneToMany(mappedBy ="idUser")
+	   // @JoinColumn(name = "user_d", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	    private Set<PhoneEntity> phones;
-	    
-	    public String getId() {
+
+	    private boolean active;
+
+		public String getId() {
 			return id;
 		}
 
@@ -69,11 +66,11 @@ public class UserEntity {
 		}
 
 		public String getName() {
-			return name.toUpperCase(Locale.US);
+			return name;
 		}
 
 		public void setName(String name) {
-			this.name = name.toUpperCase(Locale.US);
+			this.name = name;
 		}
 
 		public String getEmail() {
@@ -92,28 +89,28 @@ public class UserEntity {
 			this.password = password;
 		}
 
-		public Date getCreationDate() {
-			return creationDate;
+		public Date getCreated() {
+			return created;
 		}
 
-		public void setCreationDate(Date creationDate) {
-			this.creationDate = creationDate;
+		public void setCreated(Date created) {
+			this.created = created;
 		}
 
-		public Date getModificationDate() {
-			return modificationDate;
+		public Date getModified() {
+			return modified;
 		}
 
-		public void setModificationDate(Date modificationDate) {
-			this.modificationDate = modificationDate;
+		public void setModified(Date modified) {
+			this.modified = modified;
 		}
 
-		public Date getLastLogin() {
-			return lastLogin;
+		public Date getLast_login() {
+			return last_login;
 		}
 
-		public void setLastLogin(Date lastLogin) {
-			this.lastLogin = lastLogin;
+		public void setLast_login(Date last_login) {
+			this.last_login = last_login;
 		}
 
 		public String getToken() {
@@ -124,11 +121,11 @@ public class UserEntity {
 			this.token = token;
 		}
 
-		public Boolean getActive() {
+		public boolean isActive() {
 			return active;
 		}
 
-		public void setActive(Boolean active) {
+		public void setActive(boolean active) {
 			this.active = active;
 		}
 
@@ -141,6 +138,6 @@ public class UserEntity {
 		public void setPhones(Set<PhoneEntity> phones) {
 			this.phones = phones;
 		}
-	        
-			    
+
+		
 }

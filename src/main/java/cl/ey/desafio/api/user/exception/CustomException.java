@@ -2,16 +2,25 @@ package cl.ey.desafio.api.user.exception;
 
 public class CustomException extends Exception {
 
-	private static final long serialVersionUID = 1L;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1046766345855859016L;
 	
-	private final ErrorEnum cod;
-	
-	public CustomException(ErrorEnum cod, String msg) {
+	private ErrorEnum codigo;
+
+	public CustomException(ErrorEnum codigo, String msg) {
 		super(msg);
-		this.cod = cod;
+		this.codigo = codigo;
 	}
 
-	public ErrorEnum getCod() {
-		return cod;
+	public ErrorEnum getCodigo() {
+		return codigo;
 	}
+
+	public void setCodigo(ErrorEnum codigo) {
+		this.codigo = codigo;
+	}
+	
+
 }

@@ -1,20 +1,24 @@
 package cl.ey.desafio.api.user.model;
 
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+
+
+
 public class Phone {
 
+	
+
 	private String number;
+
+	@Size(min = 1, max = 3)
+	@Pattern(regexp = "^[0-9]{1-3}$")
 	private String citycode;
+	
+	@Size(min = 2, max = 3)
+	@Pattern(regexp = "^[0-9]{2-3}$")
 	private String contrycode;
 	
-	public Phone() {
-		super();
-	}
-	public Phone(String number, String citycode, String contrycode) {
-		super();
-		this.number = number;
-		this.citycode = citycode;
-		this.contrycode = contrycode;
-	}
 	public String getNumber() {
 		return number;
 	}
