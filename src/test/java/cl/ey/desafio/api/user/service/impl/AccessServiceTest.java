@@ -32,19 +32,23 @@ public class AccessServiceTest {
 	@Value("${api.jwt.secret}")
 	private String secret;
 	
+	@Value("${api.jwt.expiration-seconds}")
+	private Long expirationSeconds;	
+	
 	@Value("#{${api.enum.msg}}")
 	private EnumMap<ErrorEnum, String> msg;
 	
 	@BeforeEach
 	public void setup() {
 		ReflectionTestUtils.setField(service,"secret",secret);
+		ReflectionTestUtils.setField(service,"expirationSeconds",expirationSeconds);
 		ReflectionTestUtils.setField(service,"msg",msg);
 	}
 	
 	@Test
 	public void validatUserAccessOK() throws CustomException{
 		Mockito.when(user.validateUserCredential(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
-		JwtToken jwt = service.validatUserAcces("Basic dXNlcjE6c3RyaW5n");
+		JwtToken jwt = service.validatUserAcces("Basic VEVTVFVTRVI6UGFzc3dvcmQxMjM=");
 		Assertions.assertNotNull(jwt);
 		
 		
